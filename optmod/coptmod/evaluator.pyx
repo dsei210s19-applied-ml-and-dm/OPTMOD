@@ -1,5 +1,6 @@
 import sys
 cimport evaluator
+from libc.stdint cimport uintptr_t
 
 cdef class Evaluator:
 
@@ -37,12 +38,12 @@ cdef class Evaluator:
 
     def add_node(self, type, id, value, arg_ids):
         
-        cdef np.ndarray[long, mode='c'] x
+        cdef np.ndarray[uintptr_t, mode='c'] x
         if 'win32' in sys.platform.lower():
-            x = np.array(arg_ids, dtype=np.int32)
+            x = np.array(arg_ids, dtype=np.uintp)
         else:
             x = np.array(arg_ids, dtype=long)
-        evaluator.EVALUATOR_add_node(self._ptr, type, id, value, <long*>(x.data), x.size)
+            evaluator.EVALUATOR_add_node(self._ptr, type, id, value, <uintptr_t*>(x.data), x.size)
 
     def get_value(self):
         

@@ -8,6 +8,7 @@
  */
 
 #include "evaluator.h"
+#include <inttypes.h>
 
 struct Evaluator {
 
@@ -155,7 +156,7 @@ void EVALUATOR_inc_num_nodes(Evaluator* e) {
   }
 }
 
-void EVALUATOR_add_node(Evaluator* e, int type, long id, double value, long* arg_ids, int num_args) {
+void EVALUATOR_add_node(Evaluator* e, int type, uintptr_t id, double value, uintptr_t* arg_ids, int num_args) {
 
   int i;
   Node* n;
@@ -233,7 +234,7 @@ void EVALUATOR_del(Evaluator* e) {
   }
 }
 
-void EVALUATOR_set_output_node(Evaluator* e, int index, long id) {
+void EVALUATOR_set_output_node(Evaluator* e, int index, uintptr_t id) {
 
   Node* n;
   
@@ -245,7 +246,7 @@ void EVALUATOR_set_output_node(Evaluator* e, int index, long id) {
     e->outputs[index] = n;
 }
 
-void EVALUATOR_set_input_var(Evaluator* e, int index, long id) {
+void EVALUATOR_set_input_var(Evaluator* e, int index, uintptr_t id) {
   
   Node* n;
 
