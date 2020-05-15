@@ -1,10 +1,10 @@
-#****************************************************#
+# ****************************************************#
 # This file is part of OPTMOD                        #
 #                                                    #
 # Copyright (c) 2019, Tomas Tinoco De Rubira.        #
 #                                                    #
 # OPTMOD is released under the BSD 2-clause license. #
-#****************************************************#
+# ****************************************************#
 
 import numpy as np
 from Cython.Build import cythonize
@@ -33,7 +33,7 @@ setup(name='OPTMOD',
       install_requires=['cython>=0.20.1',
                         'numpy>=1.11.2',
                         'scipy>=0.18.1',
-                        'optalg==1.1.8rc1',
+                        'optalg==1.1.7rc1',
                         'nose'],
       package_data={'optmod': []},
       classifiers=['Development Status :: 5 - Production/Stable',
@@ -41,4 +41,3 @@ setup(name='OPTMOD',
                    'Programming Language :: Python :: 2.7',
                    'Programming Language :: Python :: 3.6'],
       ext_modules=ext_modules)
-                                       
