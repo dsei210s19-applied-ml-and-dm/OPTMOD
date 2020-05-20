@@ -1,8 +1,8 @@
 /** @file node.h
- * 
+ *
  * This file is part of OPTMOD
  *
- * Copyright (c) 2019, Tomas Tinoco De Rubira. 
+ * Copyright (c) 2019, Tomas Tinoco De Rubira.
  *
  * OPTMOD is released under the BSD 2-clause license.
  */
@@ -13,8 +13,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "uthash.h"
 #include <inttypes.h>
+#include "uthash.h"
+
 
 #define NODE_BUFFER_SIZE 100
 

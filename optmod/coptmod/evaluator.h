@@ -1,14 +1,15 @@
 /** @file evaluator.h
- * 
+ *
  * This file is part of OPTMOD
  *
- * Copyright (c) 2019, Tomas Tinoco De Rubira. 
+ * Copyright (c) 2019, Tomas Tinoco De Rubira.
  *
  * OPTMOD is released under the BSD 2-clause license.
  */
 
-#include "node.h"
 #include <inttypes.h>
+#include "node.h"
+
 
 typedef struct Evaluator Evaluator;
 

@@ -1,14 +1,14 @@
 /** @file node.c
- * 
+ *
  * This file is part of OPTMOD
  *
- * Copyright (c) 2019, Tomas Tinoco De Rubira. 
+ * Copyright (c) 2019, Tomas Tinoco De Rubira.
  *
  * OPTMOD is released under the BSD 2-clause license.
  */
 
 #include "node.h"
-#include <inttypes.h>
+
 
 struct Node {
   int index;
@@ -108,9 +108,9 @@ double NODE_get_value(Node* n) {
 
   if (!n)
     return 0;
-  
+
   switch (n->type) {
-    
+
   case NODE_TYPE_UNKNOWN:
     return 0;
   case NODE_TYPE_CONSTANT:
