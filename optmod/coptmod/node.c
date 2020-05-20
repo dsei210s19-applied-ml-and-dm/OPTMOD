@@ -1,19 +1,20 @@
 /** @file node.c
- * 
+ *
  * This file is part of OPTMOD
  *
- * Copyright (c) 2019, Tomas Tinoco De Rubira. 
+ * Copyright (c) 2019, Tomas Tinoco De Rubira.
  *
  * OPTMOD is released under the BSD 2-clause license.
  */
 
 #include "node.h"
 
+
 struct Node {
   int index;
   int type;
   char type_name[NODE_BUFFER_SIZE];
-  long id;
+  uintptr_t id;
   double value;
   Node* arg1;
   Node* arg2;
@@ -46,7 +47,7 @@ void NODE_copy_from_node(Node* n, Node* other, Node* hash) {
   }
 }
 
-long NODE_get_id(Node* n) {
+uintptr_t NODE_get_id(Node* n) {
   if (n)
     return n->id;
   else
@@ -107,9 +108,9 @@ double NODE_get_value(Node* n) {
 
   if (!n)
     return 0;
-  
+
   switch (n->type) {
-    
+
   case NODE_TYPE_UNKNOWN:
     return 0;
   case NODE_TYPE_CONSTANT:
@@ -139,13 +140,13 @@ double NODE_get_value(Node* n) {
 }
 
 Node* NODE_hash_add(Node* hash, Node* n) {
-  HASH_ADD(hh,hash,id,sizeof(long),n);
+  HASH_ADD(hh,hash,id,sizeof(uintptr_t),n);
   return hash;
 }
 
-Node* NODE_hash_find(Node* hash, long id) {
+Node* NODE_hash_find(Node* hash, uintptr_t id) {
   Node* n;
-  HASH_FIND(hh,hash,&id,sizeof(long),n);
+  HASH_FIND(hh,hash,&id,sizeof(uintptr_t),n);
   return n;
 }
 
@@ -206,7 +207,7 @@ void NODE_set_type(Node* n, int type) {
     n->type = type;
 }
 
-void NODE_set_id(Node* n, long id) {
+void NODE_set_id(Node* n, uintptr_t id) {
   if (n)
     n->id = id;
 }

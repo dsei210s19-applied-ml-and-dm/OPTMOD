@@ -1,34 +1,35 @@
 /** @file evaluator.c
- * 
+ *
  * This file is part of OPTMOD
  *
- * Copyright (c) 2019, Tomas Tinoco De Rubira. 
+ * Copyright (c) 2019, Tomas Tinoco De Rubira.
  *
  * OPTMOD is released under the BSD 2-clause license.
  */
 
 #include "evaluator.h"
 
+
 struct Evaluator {
 
   int max_nodes;
   int num_nodes;
   Node* nodes;
-  
+
   int num_inputs;
   Node** inputs;
-  
+
   int num_outputs;
   Node** outputs;
   double* values;
-  
+
   Node* hash;
 };
 
 void EVALUATOR_eval(Evaluator* e, double* var_values) {
 
   int i;
-  
+
   if (!e)
     return;
 
@@ -77,7 +78,7 @@ double* EVALUATOR_get_values(Evaluator* e) {
 
 Evaluator* EVALUATOR_new(int num_inputs, int num_outputs) {
   int i;
-  Evaluator* e = (Evaluator*)malloc(sizeof(Evaluator));  
+  Evaluator* e = (Evaluator*)malloc(sizeof(Evaluator));
   e->max_nodes = num_outputs;
   e->num_nodes = 0;
   e->nodes = NODE_array_new(e->max_nodes);
@@ -147,7 +148,7 @@ void EVALUATOR_inc_num_nodes(Evaluator* e) {
     // Update outputs
     for (i = 0; i < e->num_outputs; i++)
       e->outputs[i] = NODE_hash_find(e->hash, NODE_get_id(e->outputs[i]));
-    
+
     // Update nodes
     NODE_array_del(e->nodes, e->num_nodes);
     e->nodes = new_nodes;
@@ -155,7 +156,7 @@ void EVALUATOR_inc_num_nodes(Evaluator* e) {
   }
 }
 
-void EVALUATOR_add_node(Evaluator* e, int type, long id, double value, long* arg_ids, int num_args) {
+void EVALUATOR_add_node(Evaluator* e, int type, uintptr_t id, double value, uintptr_t* arg_ids, int num_args) {
 
   int i;
   Node* n;
@@ -163,10 +164,10 @@ void EVALUATOR_add_node(Evaluator* e, int type, long id, double value, long* arg
   Node** args;
   int n_index;
   int* args_index;
-  
+
   if (!e)
     return;
-  
+
   n = NODE_hash_find(e->hash, id);
   if (!n) {
     n_index = e->num_nodes;
@@ -177,7 +178,7 @@ void EVALUATOR_add_node(Evaluator* e, int type, long id, double value, long* arg
   }
   else
     n_index = NODE_get_index(n);
-  
+
   if (num_args > 0) {
     args = (Node**)malloc(sizeof(Node*)*num_args);
     args_index = (int*)malloc(sizeof(int)*num_args);
@@ -199,12 +200,12 @@ void EVALUATOR_add_node(Evaluator* e, int type, long id, double value, long* arg
     else
       args_index[i] = NODE_get_index(arg);
   }
-  
+
   // Root
   n = NODE_array_get(e->nodes, n_index);
   NODE_set_type(n, type);
   NODE_set_value(n, value);
-  
+
   // Args
   if (0 < num_args && num_args <= 2) {
     NODE_set_arg1(n, NODE_array_get(e->nodes, args_index[0]));
@@ -233,10 +234,10 @@ void EVALUATOR_del(Evaluator* e) {
   }
 }
 
-void EVALUATOR_set_output_node(Evaluator* e, int index, long id) {
+void EVALUATOR_set_output_node(Evaluator* e, int index, uintptr_t id) {
 
   Node* n;
-  
+
   if (!e)
     return;
 
@@ -245,8 +246,8 @@ void EVALUATOR_set_output_node(Evaluator* e, int index, long id) {
     e->outputs[index] = n;
 }
 
-void EVALUATOR_set_input_var(Evaluator* e, int index, long id) {
-  
+void EVALUATOR_set_input_var(Evaluator* e, int index, uintptr_t id) {
+
   Node* n;
 
   if (!e)
@@ -285,7 +286,7 @@ void EVALUATOR_show(Evaluator* e) {
   for (i = 0; i < e->num_outputs; i++)
     printf("%.2e, ", e->values[i]);
   printf("\n\n");
-  
+
   printf("nodes:\n\n");
   for (i = 0; i < e->num_nodes; i++) {
     NODE_show(NODE_array_get(e->nodes, i));
