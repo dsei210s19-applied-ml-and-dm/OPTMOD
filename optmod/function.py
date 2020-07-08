@@ -6,8 +6,9 @@ from collections import defaultdict
 from .variable import VariableScalar
 from .expression import Expression, ExpressionMatrix, make_Expression
 
+
 class Function(Expression):
-    
+
     arguments = []
 
     def __init__(self, args=[]):
@@ -16,7 +17,7 @@ class Function(Expression):
         self.arguments = args
 
     def __repr__(self):
-        
+
         args = [x.__repr__() for x in self.arguments]
         return '%s(%s)' %(self.name, ','.join(args))
 
@@ -27,15 +28,15 @@ class Function(Expression):
         for i, arg in enumerate(self.arguments):
             prop = arg.__analyze__()
             a.update(prop['a'])
-            
+
         return {'affine': False,
                 'a': a,
                 'b': np.NaN}
-            
+
     def __partial__(self, arg):
 
         return NotImplemented
-    
+
     def __fill_evaluator__(self, evaluator):
 
         evaluator.add_node(self.__evaluator_node_type__(),
@@ -52,7 +53,7 @@ class Function(Expression):
             raise TypeError('agrument must be set of variables')
 
         vars = set(vars)
-        
+
         path = path + (self,)
         paths = defaultdict(list)
         for arg in self.arguments:
@@ -64,21 +65,21 @@ class Function(Expression):
         return paths
 
     def get_derivatives(self, vars):
-        
+
         paths = self.__all_simple_paths__(vars, ())
         derivs = {}
         for var in vars:
             d = 0.
-            for path in paths[var]:            
+            for path in paths[var]:
                 prod = make_Expression(1.)
                 for parent, child in zip(path[:-1], path[1:]):
                     prod = prod*parent.__partial__(child)
                 d = d + prod
             derivs[var] = make_Expression(d)
         return derivs
-        
+
     def get_variables(self):
-    
+
         return reduce(lambda x,y: x.union(y),
                       map(lambda arg: arg.get_variables(), self.arguments),
                       set())
@@ -103,10 +104,11 @@ class Function(Expression):
 
         return True
 
+
 class ElementWiseFunction(Function):
 
     def __new__(cls, arg):
-        
+
         if isinstance(arg, ExpressionMatrix):
             return ExpressionMatrix(np.vectorize(cls)(arg.data))
 
@@ -115,21 +117,22 @@ class ElementWiseFunction(Function):
 
         else:
             return super(ElementWiseFunction, cls).__new__(cls)
-        
+
     def __init__(self, arg):
 
         Function.__init__(self, [make_Expression(arg)])
         assert(len(self.arguments) == 1)
-        
+
+
 class add(Function):
 
     def __init__(self, args):
-        
+
         Function.__init__(self, args)
-        
+
         self.name = 'add'
         assert(len(self.arguments) >= 2)
-        
+
     def __repr__(self):
 
         args = [x.__repr__()+' + ' for x in self.arguments]
@@ -145,7 +148,7 @@ class add(Function):
     def __analyze__(self):
 
         args = self.arguments
-        
+
         props = []
         for i, arg in enumerate(args):
             props.append(arg.__analyze__())
@@ -163,13 +166,14 @@ class add(Function):
                 'b': sum([prop['b'] for prop in props])}
 
     def __evaluator_node_type__(self):
-            
+
         return coptmod.NODE_TYPE_ADD
 
     def __set_value__(self):
 
         self.__value__ = np.sum(list(map(lambda a: a.__value__, self.arguments)))
-    
+
+
 class multiply(Function):
 
     def __init__(self, args):
@@ -178,7 +182,7 @@ class multiply(Function):
 
         self.name = 'multiply'
         assert(len(self.arguments) == 2)
-        
+
     def __repr__(self):
 
         a = self.arguments[0]
@@ -193,17 +197,17 @@ class multiply(Function):
 
         if arg is self.arguments[0]:
             return self.arguments[1]
-        
+
         elif arg is self.arguments[1]:
             return self.arguments[0]
-        
+
         else:
             raise ValueError('invalid argument')
 
     def __analyze__(self):
 
         arg1, arg2 = self.arguments
-        
+
         prop1 = arg1.__analyze__()
         prop2 = arg2.__analyze__()
 
@@ -218,12 +222,13 @@ class multiply(Function):
                 'b': prop1['b']*prop2['b']}
 
     def __evaluator_node_type__(self):
-    
+
         return coptmod.NODE_TYPE_MULTIPLY
 
     def __set_value__(self):
 
         self.__value__ = np.prod([a.__value__ for a in self.arguments])
+
 
 class sin(ElementWiseFunction):
 
@@ -250,12 +255,13 @@ class sin(ElementWiseFunction):
             raise ValueError('invalid argument')
 
     def __evaluator_node_type__(self):
-            
+
         return coptmod.NODE_TYPE_SIN
-        
+
     def __set_value__(self):
 
         self.__value__ = np.sin(self.arguments[0].__value__)
+
 
 class cos(ElementWiseFunction):
 
@@ -270,7 +276,7 @@ class cos(ElementWiseFunction):
     def __init__(self, arg):
 
         ElementWiseFunction.__init__(self, arg)
-        
+
         self.name = 'cos'
 
     def __partial__(self, arg):
@@ -282,7 +288,7 @@ class cos(ElementWiseFunction):
             raise ValueError('invalid argument')
 
     def __evaluator_node_type__(self):
-            
+
         return coptmod.NODE_TYPE_COS
 
     def __set_value__(self):

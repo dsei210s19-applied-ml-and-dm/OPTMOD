@@ -2,14 +2,15 @@ import numpy as np
 from .variable import VariableScalar
 from .expression import make_Expression
 
+
 class Constraint(object):
-    
+
     lhs = None
     op = None
     rhs = None
 
     def __init__(self, lhs, op, rhs):
-        
+
         self.lhs = make_Expression(lhs)
         self.op = op
         self.rhs = make_Expression(rhs)
@@ -40,7 +41,7 @@ class Constraint(object):
 
         cA_list = [] # list of constraints
         cJ_list = [] # list of constraints
-        
+
         A_list = [] # list of (row index, variable, data value)
         b_list = [] # list of values
         f_list = [] # list of expressions
@@ -67,15 +68,15 @@ class Constraint(object):
         affine = phi_prop['affine']
 
         prop_list.append(phi_prop)
-        
+
         # Bound
         if affine and len(a) == 1 and list(a.values())[0] == 1. and op != '==':
-            
+
             if op == '<=': # x + b <= 0
                 u_list.append((list(a.keys())[0], -b, self))
             else:          # x + b >= 0
                 l_list.append((list(a.keys())[0], -b, self))
-            
+
         # Linear
         elif affine:
 
@@ -101,7 +102,7 @@ class Constraint(object):
                     l_list.append((s, 0, self))
                 counters['A_row'] += 1
                 a[s] = 1.
-                
+
         # Nonlinear
         else:
 
@@ -129,7 +130,7 @@ class Constraint(object):
                     l_list.append((s, 0, self))
                 counters['J_row'] += 1
                 a[s] = 1.
-        
+
         # Return
         return {'cA_list': cA_list,
                 'cJ_list': cJ_list,
@@ -180,7 +181,8 @@ class Constraint(object):
     def set_dual(self, dual):
 
         self.dual = dual
-        
+
+
 class ConstraintArray(object):
 
     data = None
@@ -191,11 +193,11 @@ class ConstraintArray(object):
         if isinstance(obj, ConstraintArray):
             self.data = obj.data
             self.shape = obj.shape
-            
+
         elif isinstance(obj, Constraint):
             self.data = np.asarray(obj)
             self.shape = self.data.shape
-            
+
         elif obj is not None:
             obj = np.asarray(obj)
             def fn(x):
@@ -205,7 +207,7 @@ class ConstraintArray(object):
                     raise TypeError('invalid object')
             self.data = np.vectorize(fn)(obj)
             self.shape = obj.shape
-        
+
     def __getitem__(self, key):
 
         m = np.asarray(self.data)[key]

@@ -6,6 +6,7 @@ from scipy.sparse import coo_matrix
 from .constraint import Constraint, ConstraintArray
 from .expression import make_Expression, ExpressionMatrix
 
+
 class Objective(object):
 
     function = None
@@ -26,6 +27,7 @@ class Objective(object):
     #
     #    return self.function.get_variables()
 
+
 class minimize(Objective):
 
     def __init__(self, func):
@@ -40,19 +42,21 @@ class minimize(Objective):
 
         return self.function.__get_std_components__()
 
+
 class maximize(Objective):
 
     def __init__(self, func):
-        
+
         Objective.__init__(self, func)
 
     def __repr__(self):
-            
+
         return 'maximize %s' %self.function
 
     def __get_std_components__(self):
 
         return (-self.function).__get_std_components__()
+
 
 class EmptyObjective(minimize):
 
@@ -63,15 +67,16 @@ class EmptyObjective(minimize):
     def __repr__(self):
 
         return 'empty'
-    
+
     def __get_std_components__(self):
 
         return self.function.__get_std_components__()
 
+
 class Problem(object):
 
     INF = 1e8
-    
+
     objective = None
     constraints = None
     sense = None
@@ -94,7 +99,7 @@ class Problem(object):
                     raise ValueError('infeasible constraint')
             else:
                 self.constraints.extend(ConstraintArray(c).flatten().tolist())
-        
+
     def __repr__(self):
 
         s = ('\nObjective:\n' +
@@ -109,7 +114,7 @@ class Problem(object):
         return s
 
     def __get_std_components__(self):
-        
+
         obj_comp = self.objective.__get_std_components__()
 
         counters = {'A_row': 0, 'J_row': 0}
@@ -118,7 +123,7 @@ class Problem(object):
             comp = c.__get_std_components__(counters=counters)
             for key in comp:
                 constr_comp[key] += comp[key]
-                                
+
         return dict(obj_comp, **constr_comp)
 
     def __get_std_problem__(self, fast_evaluator=True):
@@ -134,11 +139,11 @@ class Problem(object):
         vars = sorted(list(vars), key=lambda x: x.id)
         num_vars = len(vars)
         var_values = np.array([x.get_value() for x in vars])
-        
+
         # Index map
         var2index = dict(zip(vars, range(len(vars))))
         index2var = dict(zip(range(len(vars)), vars))
-        
+
         # Objective
         phi_data = ExpressionMatrix(comp['phi'])
         gphi_list = comp['gphi_list']
@@ -161,7 +166,7 @@ class Problem(object):
         Hphi_row = np.array(row, dtype=int)
         Hphi_col = np.array(col, dtype=int)
         Hphi_data = ExpressionMatrix(data)
-        
+
         # Linear constraints
         Aindex2constr = dict(enumerate(comp['cA_list']))
         A_list = comp['A_list']
@@ -177,7 +182,7 @@ class Problem(object):
         Jindex2constr = dict(enumerate(comp['cJ_list']))
         f_list = comp['f_list']
         J_list = comp['J_list']
-        H_list = comp['H_list']        
+        H_list = comp['H_list']
         f_data = ExpressionMatrix(f_list)
         row, col, data = zip(*J_list) if J_list else ([], [], [])
         J_row = np.array(row, dtype=int)
@@ -231,10 +236,10 @@ class Problem(object):
             if val >= l[index]:
                 l[index] = val
                 lindex2constr[index] = c
-                    
+
         # Problem
         p = OptProblem()
-        
+
         p.phi = 0.
         p.gphi = np.zeros(num_vars)
         p.Hphi = coo_matrix((np.zeros(Hphi_data.shape[1]),
@@ -247,7 +252,7 @@ class Problem(object):
         p.f = np.zeros(f_data.shape[1])
         p.J = coo_matrix((np.zeros(J_data.shape[1]),
                           (J_row, J_col)),
-                         shape=(p.f.size, num_vars))        
+                         shape=(p.f.size, num_vars))
         p.H_combined = coo_matrix((np.zeros(int(np.sum(H_comb_nnz))),
                                    (H_comb_row, H_comb_col)),
                                   shape=(num_vars, num_vars))
@@ -299,15 +304,15 @@ class Problem(object):
 
         # Slow evaluator
         if not fast_evaluator:
-        
+
             # Eval
             def eval(obj, x):
-                
+
                 # Set values
                 for i, var in obj.index2var.items():
                     var.set_value(x[i])
-                
-                # Eval experssions                    
+
+                # Eval experssions
                 obj.phi = obj.phi_data[0,0].get_value()
                 if obj.gphi_indices.size:
                     obj.gphi[obj.gphi_indices] = obj.gphi_data.get_value()
@@ -315,7 +320,7 @@ class Problem(object):
                 obj.f[:] = obj.f_data.get_value()
                 obj.J.data[:] = obj.J_data.get_value()
                 obj.H_combined.data[:] = obj.H_comb_data.get_value()
-                
+
             p.eval = types.MethodType(eval, p)
 
         # Fast evaluator
@@ -340,7 +345,7 @@ class Problem(object):
                                     (offset_f_data, f_data),
                                     (offset_J_data, J_data),
                                     (offset_H_comb_data, H_comb_data)]:
-                                    
+
                 data = exp_mat.get_data()
                 for i in range(data.size):
                     data[0,i].__fill_evaluator__(e)
@@ -348,7 +353,7 @@ class Problem(object):
 
             for i, var in enumerate(vars):
                 e.set_input_var(i, id(var))
-                
+
             p.e = e
             p.offset_phi_data = offset_phi_data
             p.offset_gphi_data = offset_gphi_data
@@ -359,7 +364,7 @@ class Problem(object):
 
             # Eval
             def eval(obj, x):
-                
+
                 # Eval experssions
                 obj.e.eval(x)
 
@@ -372,18 +377,18 @@ class Problem(object):
                 obj.f[:] = value[0,obj.offset_f_data:obj.offset_J_data]
                 obj.J.data[:] = value[0,obj.offset_J_data:obj.offset_H_comb_data]
                 obj.H_combined.data[:] = value[0,obj.offset_H_comb_data:]
-                
+
             p.eval = types.MethodType(eval, p)
-                
+
         # Combine H
         def combine_H(obj, lam, ensure_psd=False):
             obj.H_combined.data *= obj.H_combined_broad*lam
-            
+
         p.combine_H = types.MethodType(combine_H, p)
-                
+
         # Return
         return p
-            
+
     #def get_variables(self):
     #
     #    return self.get_variables().union(*[c.get_variables() for c in self.constraints])
@@ -431,7 +436,7 @@ class Problem(object):
                 var.set_value(x[i])
 
         # Get dual variables
-        lam, nu, mu, pi = solver.get_dual_variables()        
+        lam, nu, mu, pi = solver.get_dual_variables()
         if (lam is not None) and lam.size:
             for i, c in std_prob.Aindex2constr.items():
                 c.set_dual(lam[i])
@@ -444,7 +449,7 @@ class Problem(object):
         if (pi is not None) and pi.size:
             for i, c in std_prob.lindex2constr.items():
                 c.set_dual(pi[i])
-                    
+
         # Info
         info = {'status': solver.get_status(),
                 'iterations': solver.get_iterations(),

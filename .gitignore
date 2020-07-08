@@ -38,6 +38,9 @@ coptmod.pyd
 # Auto
 coptmod.cpp
 
+# Docs
+docs/_build/
+
 # Others
 build/
 dist/

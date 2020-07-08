@@ -1,10 +1,10 @@
 # OPTMOD
 
-[![Build Status](https://travis-ci.org/ttinoco/OPTMOD.svg?branch=master)](https://travis-ci.org/ttinoco/OPTMOD)
+[![Build Status](https://travis-ci.org/romcon/OPTMOD.svg?branch=master)](https://travis-ci.org/romcon/OPTMOD)
 
 ## Overview
 
-Experimental optimization modeling layer for [OPTALG](https://github.com/ttinoco/OPTALG) (dev branch) with automatic sparse first and second derivatives.
+Experimental optimization modeling layer for [OPTALG](https://github.com/romcon/OPTALG) (dev branch) with automatic sparse first and second derivatives.
 
 Expressions for derivatives are constructed once and can be then evaluated multiple times efficiently.
 
@@ -87,6 +87,8 @@ x4, 1.379
 
 ### Example MILP
 
+This example requires that [Cbc](https://projects.coin-or.org/Cbc) is installed.
+
 ```python
 from optalg.opt_solver import OptSolverCbcCMD
 from optmod import VariableScalar, Problem, minimize
@@ -130,7 +132,7 @@ from optmod import VariableScalar, Problem, EmptyObjective, cos
 x = VariableScalar('x', value=1.)
 
 constraints = [x*cos(x)-x*x == 0]
-        
+
 p = Problem(EmptyObjective(), constraints)
 
 info = p.solve(OptSolverNR(), parameters={'quiet': False, 'feastol': 1e-10})
@@ -141,6 +143,22 @@ print(x, x.get_value())
 The solution output is
 ```python
 x, 0.739085
+```
+
+## Documenation
+
+EPRI developers can review the [guides](https://github.com/romcon/guides/wiki/Low-Level-Stack#optmod).
+
+[Sphinx](https://www.sphinx-doc.org/en/master/) with [numpydoc](https://numpydoc.readthedocs.io/en/latest/) and [m2r](https://miyakogi.github.io/m2r/index.html) with extensions are required to build the automatic documenation.
+
+```sh
+pip install sphinx numpydoc
+```
+To build the documenation go into the "docs" folder and to build the html (for example) documenation run:
+
+```sh
+make clean
+make html
 ```
 
 ## License

@@ -3,6 +3,7 @@ from . import coptmod
 from itertools import count
 from .expression import Expression, ExpressionMatrix, make_Expression
 
+
 class VariableDict(dict):
 
     def __init__(self, keys, name='var', value=None, type='continuous'):
@@ -15,6 +16,7 @@ class VariableDict(dict):
                                        value=value[key] if (value is not None and key in value) else 0.,
                                        type=type)
 
+
 class VariableScalar(Expression):
 
     _ids = count(0)
@@ -26,14 +28,14 @@ class VariableScalar(Expression):
 
         if not np.isscalar(value):
             raise ValueError('value is not a scalar')
-        
+
         Expression.__init__(self)
 
         self.name = name
         self.__value__ = np.float64(value) if value is not None else 0.
         self.type = type
         self.id = next(self._ids)
-        
+
     def __repr__(self):
 
         return self.name
@@ -63,7 +65,7 @@ class VariableScalar(Expression):
     def get_variables(self):
 
         return set([self])
-    
+
     def is_variable(self):
 
         return True
@@ -79,16 +81,17 @@ class VariableScalar(Expression):
     def set_value(self, val):
 
         self.__value__ = val
-        
+
+
 class VariableMatrix(ExpressionMatrix):
 
     def __init__(self, name='var', value=None, shape=None, type='continuous'):
-        
+
         ExpressionMatrix.__init__(self)
 
         if shape is None and value is None:
             shape = (1,1)
-        
+
         if value is None:
             value = np.zeros(shape, dtype=np.float64)
         value = np.asmatrix(value)
@@ -101,7 +104,7 @@ class VariableMatrix(ExpressionMatrix):
 
         if value.shape != shape:
             value = value.reshape(shape)
-            
+
         self.shape = shape
         self.data = np.asmatrix([[VariableScalar(name=name+'[%d,%d]' %(i,j),
                                                  value=np.float64(value[i,j]),
@@ -120,4 +123,3 @@ class VariableMatrix(ExpressionMatrix):
         for i in range(self.shape[0]):
             for j in range(self.shape[1]):
                 self.data[i,j].set_value(val[i,j])
-

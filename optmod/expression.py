@@ -3,6 +3,7 @@ from . import coptmod
 from functools import reduce
 from collections import OrderedDict
 
+
 class Expression(object):
 
     name = ''
@@ -14,7 +15,7 @@ class Expression(object):
         pass
 
     def __repr__(self):
-        
+
         raise NotImplementedError
 
     def __hash__(self):
@@ -22,11 +23,11 @@ class Expression(object):
         return id(self)
 
     def __neg__(self):
-        
+
         return -1.*self
-    
+
     def __add__(self, x):
-                
+
         # Arrray
         if isinstance(x, np.ndarray):
             if self.is_zero():
@@ -103,7 +104,7 @@ class Expression(object):
             if self.is_zero():
                 return x
             return x.__sub__(self)
-                
+
         # Other
         x = make_Expression(x)
         return x.__add__(self.__mul__(-1.))
@@ -158,7 +159,7 @@ class Expression(object):
         return self.__mul__(x)
 
     def __eq__(self, x):
-        
+
         return self.__cmp_util__('==', x)
 
     def __le__(self, x):
@@ -170,18 +171,18 @@ class Expression(object):
         return self.__cmp_util__('>=', x)
 
     def __cmp_util__(self, op, x):
-                
+
         if isinstance(x, np.ndarray):
             return ConstraintArray(np.vectorize(self.__cmp_util__)(op, x))
-    
+
         elif isinstance(x, ExpressionMatrix):
             return ConstraintArray(np.vectorize(self.__cmp_util__)(op, x.data))
-                
+
         else:
             return Constraint(self, op, x)
 
     def __node__(self, prefix):
-        
+
         return (prefix, id(self))
 
     def __analyze__(self, G, prefix):
@@ -189,7 +190,7 @@ class Expression(object):
         return {'affine': False,
                 'a': {},
                 'b': np.NaN}
-    
+
     def __get_std_components__(self):
 
         phi = self
@@ -213,7 +214,7 @@ class Expression(object):
                 gphi_list.append((var1, d))
                 dvars_list = vars_list[i:]
                 dvars_set = set(dvars_list)
-                dderivs = d.get_derivatives(dvars_set) 
+                dderivs = d.get_derivatives(dvars_set)
                 for var2 in dvars_list:
                     dd = dderivs[var2]
                     if not dd.is_constant(0.):
@@ -250,7 +251,7 @@ class Expression(object):
         return self.__value__
 
     def get_variables(self):
-    
+
         return set()
 
     def get_fast_evaluator(self, variables):
@@ -264,7 +265,7 @@ class Expression(object):
         for i, var in enumerate(variables):
             e.set_input_var(i, id(var))
         e.set_output_node(0, id(self))
-        
+
         return e
 
     def is_zero(self):
@@ -287,29 +288,31 @@ class Expression(object):
 
         return False
 
+
 def make_Expression(obj):
-    
+
     if isinstance(obj, Expression):
         return obj
     else:
         return Constant(obj)
-        
+
+
 class ExpressionMatrix(object):
 
     data = None
     shape = None
     __array_priority__ = 10000.
-    
+
     def __init__(self, obj=None):
-        
+
         if isinstance(obj, ExpressionMatrix):
             self.data = obj.data
             self.shape = obj.shape
-            
+
         elif isinstance(obj, Expression):
             self.data = np.asmatrix(obj)
             self.shape = self.data.shape
-            
+
         elif obj is not None:
             obj = np.asmatrix(obj)
             if obj.size:
@@ -343,7 +346,7 @@ class ExpressionMatrix(object):
             return ExpressionMatrix(m)
 
     def __neg__(self):
-        
+
         return ExpressionMatrix(np.vectorize(lambda x: -x)(self.data))
 
     def __add__(self, x):
@@ -353,9 +356,9 @@ class ExpressionMatrix(object):
 
         else:
             return ExpressionMatrix(self.data.__add__(np.asmatrix(x)))
-        
+
     def __radd__(self, x):
-        
+
         return self.__add__(x)
 
     def __sub__(self, x):
@@ -384,7 +387,7 @@ class ExpressionMatrix(object):
 
         else:
             return ExpressionMatrix(np.asarray(self.data)*x)
-    
+
     def __rmul__(self, x):
 
         if isinstance(x, ExpressionMatrix):
@@ -419,7 +422,7 @@ class ExpressionMatrix(object):
     def get_data(self):
 
         return self.data
-        
+
     def get_value(self):
 
         if self.data.size:
@@ -450,8 +453,11 @@ class ExpressionMatrix(object):
         for i, var in enumerate(variables):
             e.set_input_var(i, id(var))
         return e
-              
+
 class SparseExpressionMatrix:
+    """
+    Not yet implemented.
+    """
 
     pass
 
@@ -459,4 +465,3 @@ class SparseExpressionMatrix:
 from .constant import Constant
 from .function import add, multiply
 from .constraint import Constraint, ConstraintArray
-        

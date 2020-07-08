@@ -3,10 +3,11 @@ from . import utils
 from . import coptmod
 from .expression import Expression
 
+
 class Constant(Expression):
 
     def __init__(self, value):
-        
+
         Expression.__init__(self)
 
         self.name = 'const'
@@ -20,9 +21,9 @@ class Constant(Expression):
         return utils.repr_number(self.__value__)
 
     def __analyze__(self):
-        
+
         return {'affine': True,
-                'a': {}, 
+                'a': {},
                 'b': self.__value__}
 
     def __evaluator_node_type__(self):

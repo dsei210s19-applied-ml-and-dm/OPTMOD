@@ -2,6 +2,7 @@ import sys
 cimport evaluator
 from libc.stdint cimport uintptr_t
 
+
 cdef class Evaluator:
 
     cdef evaluator.Evaluator* _ptr
@@ -16,7 +17,7 @@ cdef class Evaluator:
 
         if shape is None:
             shape = (1, num_outputs)
-        
+
         try:
             if len(shape) != 2:
                 raise ValueError('invalid shape')
@@ -37,22 +38,22 @@ cdef class Evaluator:
         self._ptr = NULL
 
     def add_node(self, type, id, value, arg_ids):
-        
+
         cdef np.ndarray[uintptr_t, mode='c'] x
         x = np.array(arg_ids, dtype=np.uintp)
         evaluator.EVALUATOR_add_node(self._ptr, type, id, value, <uintptr_t*>(x.data), x.size)
 
     def get_value(self):
-        
+
         cdef np.npy_intp shape[2]
         shape[0] = <np.npy_intp>(self.shape[0])
         shape[1] = <np.npy_intp>(self.shape[1])
-        
+
         arr = np.PyArray_SimpleNewFromData(2,
                                            shape,
                                            np.NPY_DOUBLE,
                                            evaluator.EVALUATOR_get_values(self._ptr))
-        
+
         PyArray_CLEARFLAGS(arr, np.NPY_OWNDATA)
         if arr.shape == (1,1) and self.scalar_output:
             return arr[0,0]
@@ -65,7 +66,7 @@ cdef class Evaluator:
 
         assert(x.ndim == 1)
         assert(x.size == self.num_inputs)
-        
+
         evaluator.EVALUATOR_eval(self._ptr, <double*>(x.data))
 
     def set_output_node(self, i, id):
@@ -75,7 +76,7 @@ cdef class Evaluator:
     def set_input_var(self, i, id):
 
         evaluator.EVALUATOR_set_input_var(self._ptr, i, id)
-        
+
     def show(self):
 
         evaluator.EVALUATOR_show(self._ptr)
@@ -97,4 +98,3 @@ cdef class Evaluator:
 
     property scalar_output:
         def __get__(self): return self.scalar_output
-    
