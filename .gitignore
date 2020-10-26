@@ -49,3 +49,7 @@ dist/
 *egg*
 __pycache__
 setup.cfg
+
+# Eclipse stuff
+/.project
+/.pydevproject
