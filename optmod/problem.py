@@ -436,19 +436,21 @@ class Problem(object):
                 var.set_value(x[i])
 
         # Get dual variables
-        lam, nu, mu, pi = solver.get_dual_variables()
-        if (lam is not None) and lam.size:
-            for i, c in std_prob.Aindex2constr.items():
-                c.set_dual(lam[i])
-        if (nu is not None) and nu.size:
-            for i, c in std_prob.Jindex2constr.items():
-                c.set_dual(nu[i])
-        if (mu is not None) and mu.size:
-            for i, c in std_prob.uindex2constr.items():
-                c.set_dual(mu[i])
-        if (pi is not None) and pi.size:
-            for i, c in std_prob.lindex2constr.items():
-                c.set_dual(pi[i])
+        # Unable to get duals from Cbc API right now
+        if not isinstance(solver, optalg.opt_solver.OptSolverCbc):
+            lam, nu, mu, pi = solver.get_dual_variables()
+            if (lam is not None) and lam.size:
+                for i, c in std_prob.Aindex2constr.items():
+                    c.set_dual(lam[i])
+            if (nu is not None) and nu.size:
+                for i, c in std_prob.Jindex2constr.items():
+                    c.set_dual(nu[i])
+            if (mu is not None) and mu.size:
+                for i, c in std_prob.uindex2constr.items():
+                    c.set_dual(mu[i])
+            if (pi is not None) and pi.size:
+                for i, c in std_prob.lindex2constr.items():
+                    c.set_dual(pi[i])
 
         # Info
         info = {'status': solver.get_status(),

@@ -753,11 +753,11 @@ class TestProblems(unittest.TestCase):
             raise unittest.SkipTest('cbc not available')
 
         info = p.solve(optalg.opt_solver.OptSolverNR(), parameters={'quiet': True, 'feastol': 1e-10})
-        
+
         self.assertEqual(info['status'], 'solved')
         self.assertAlmostEqual(x.get_value(), 0.739085133215161, places=7)
 
-        x.value = 1.
+        x.set_value(1.)
         self.assertNotAlmostEqual(x.get_value(), 0.739085133215161, places=7)
 
         info = p.solve(optalg.opt_solver.OptSolverNR(), parameters={'quiet': True, 'feastol': 1e-10}, fast_evaluator=False)
